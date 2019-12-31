@@ -42,7 +42,7 @@
 	* 玩家点击选择菜单栏中**帮助**，点击**游戏规则**可以查看游戏规则说明，点击**关于葫芦世界**可以查看相关开发信息。
 	
 ### 界面展示
-![](https://i.imgur.com/mvUsFsD.gif)
+![](https://i.imgur.com/fvDUrQy.gif)
 
 ## 实现说明
 ### 继承
@@ -63,7 +63,7 @@
 ```java
 public class Map {
     public int creatureActionNum = 0;                      //生物动作计数
-	……
+	
 
     //多线程控制函数：生物动作和画面更新交替进行
     public synchronized void resetCreatureActionNum(){
@@ -86,7 +86,6 @@ public class Map {
 public class Creature implements Runnable {
     public boolean actionFlag = false;      //动作进行标志:true表示可以进行
     Map map;                            	//引用类型，引用公共变量map
-	……
 
     public Creature(String name,Map map) {
         this.image = ImageLoader.getImage(name);
