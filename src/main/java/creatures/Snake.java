@@ -1,16 +1,15 @@
-package Creatures;
+package creatures;
 
-import Map.*;
-import Reply.Action;
+import map.*;
 import javafx.scene.image.Image;
-
-import java.util.ArrayList;
 
 public class Snake extends Leader {
     public Snake(Map map) {
         super(map);
         this.name = "蛇精";
-        this.nature = false;
+        this.type = false;
+        center_x = 7;
+        center_y = 11;
         this.image =  new Image(getClass().getClassLoader().getResource("pic/snake.png").toString()
                 ,this.size,this.size,false,false);
         this.battleImage =  new Image(this.getClass().getClassLoader().getResource(new String("pic/snakeSkill.png")).toString(),

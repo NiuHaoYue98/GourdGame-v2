@@ -1,8 +1,8 @@
-package GUI;
+package gui;
 
-import Map.ShowMap;
-import Map.World;
-import Reply.*;
+import map.ShowMap;
+import map.World;
+import reply.*;
 
 import java.io.*;
 import java.net.URL;
@@ -63,18 +63,6 @@ public class MyController implements Initializable {
     }
 
     //改变阵型
-    public void changeFormation(boolean flag) {
-        //进行初始化操作
-        //if(this.is_ready_to_fight == false) return;
-        if (this.is_reviewing == true) return;
-
-        //t用来控制是葫芦娃变换阵型还是敌人
-        Random rand = new Random();
-        int index = rand.nextInt(8);
-        world.makeChangeofFormaton(flag, index);
-        this.showMap.showLines();
-        world.printThefield();
-    }
     public void set_queue_Calash(ActionEvent event) {
         if(this.start){
             this.showAlert("正在进行战斗，无法给葫芦娃重新列阵！");
@@ -84,7 +72,10 @@ public class MyController implements Initializable {
             this.showAlert("正在进行战斗回放，无法给葫芦娃重新列阵！");
             return;
         }
-        this.changeFormation(true);
+        world.getGrandPa().changeFormation();
+        this.showMap.showLines();
+        world.printThefield();
+
     }
     public void set_queue_monster(ActionEvent event) {
         if(this.start){
@@ -95,7 +86,9 @@ public class MyController implements Initializable {
             this.showAlert("正在进行战斗回放，无法给妖精重新列阵！");
             return;
         }
-        this.changeFormation(false);
+        world.getSnake().changeFormation();
+        this.showMap.showLines();
+        world.printThefield();
     }
     //重新开始
     public void reStart(ActionEvent event){

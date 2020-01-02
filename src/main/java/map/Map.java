@@ -1,7 +1,7 @@
-package Map;
+package map;
 
-import Creatures.*;
-import Reply.Action;
+import creatures.*;
+import reply.Action;
 import javafx.scene.canvas.Canvas;
 import java.util.ArrayList;
 
@@ -78,10 +78,10 @@ public class Map {
     //set-get
     public void setCreature(Creature temp, int i, int j) {
         if(i < 0 || i >= N || j < 0 || j >= N) {
-            System.err.println("error at Map.setCreature 放置生物时坐标错误!");
+            System.err.println("error at map.setCreature 放置生物时坐标错误!");
             exit(-1);
         }
-        pos[i][j].getCre(temp);
+        pos[i][j].setCreature(temp);
     }
     public void setStart() {
         start = true;
@@ -96,6 +96,7 @@ public class Map {
 
     //改变阵型，移动生物
     public void moveCreature(Creature temp, int i, int j) {
+        System.out.println("at Map.moveCreature 变换阵型");
         if(i < 0 || i >= N || j < 0 || j >= N) {
             System.err.println("移动时坐标错误!");
         }
@@ -103,14 +104,14 @@ public class Map {
         int y = temp.getJ();
         //未放置
         if(x == -1 && y == -1) {
-            pos[i][j].getCre(temp);
+            pos[i][j].setCreature(temp);
         }
         else if(x != i || y != j) {
             if(pos[i][j].isEmpty() == false) {
                 if(start == false)
                     pos[i][j].swapCre(pos[x][y]); //战斗没开始可以交换位置
                 else{
-                    System.err.println("at Map.moveCreature 已开始，目标位置非空，生物无法移动");
+                    System.err.println("at map.moveCreature 已开始，目标位置非空，生物无法移动");
                 }
             }
             else {
@@ -125,15 +126,11 @@ public class Map {
     }
 
     //返回待攻击位置的生物
-    public Creature checkEnemy(int i,int j){
-        Creature res = null;
-        boolean tempNature;
-        //判断当前位置是否有生物
-        if(this.pos[i][j].getCreature()!=null)
-            tempNature = this.pos[i][j].getCreature().getNature();
-        else
-            return null;
+    public Creature findRoundEnemy(Creature creature){
+        Creature enemy = null;
         //判断四周是否有敌人
+        int i = creature.getI();
+        int j = creature.getJ();
         for(int x = i - 1; x <=  i + 1; x ++) {
             for(int y = j - 1; y <= j + 1; y ++){
                 //位置超出地图
@@ -145,26 +142,26 @@ public class Map {
                 Creature t = this.pos[x][y].getCreature();
                 if(t.getAlive() == false)
                     continue;
-                if(t.getNature() != tempNature) {
-                    res = t;
+                if(t.getType() != creature.getType()) {
+                    enemy = t;
                     break;
                 }
             }
         }
-        return res;
+        return enemy;
     }
-    //清除位置信息
+    //清除位置生物
     public void clearPos(int i, int j) {
         this.pos[i][j].clearPos();
     }
     //判断某一阵营是否有生物存活
-    public boolean judgeAlive(boolean nature){
+    public boolean judgeAlive(boolean type){
         boolean alive = false;
         for(int i = 0; i < N; i ++) {
             for(int j = 0; j < N; j++) {
                 if(this.pos[i][j].isEmpty() == false){
                     Creature temp = this.pos[i][j].getCreature();
-                    if(temp.getAlive() && temp.retNature() == nature) {
+                    if(temp.getAlive() && temp.getType() == type) {
                         alive = true;
                         break;
                     }
@@ -173,14 +170,6 @@ public class Map {
         }
         return alive;
     }
-    public void killAll() {
-        for(int i = 0; i < N; i++){
-            for(int j = 0; j < N; j++){
-                this.pos[i][j].killPos();
-            }
-        }
-    }
-
 
     //【回放】根据记录初始化地图
     public int[][] initFiled(Creature[] creatures) {
@@ -202,4 +191,38 @@ public class Map {
         return init;
     }
 
+    //判断地图上某位置是否为空
+    public synchronized boolean judgePosEmpty(int x,int y){
+        if(this.pos[x][y].isEmpty())
+            return true;
+        else
+            return false;
+    }
+
+    //判断各个方向上的敌人数目
+    public synchronized int[] countEnemyNum(Creature creature){
+        int[] dirNum = {0,0,0,0};//上下左右
+        int x = creature.getI();
+        int y = creature.getJ();
+        for(int i = 0;i<N;i++){
+            for(int j=0;j<N;j++){
+                if(!pos[i][j].isEmpty()) {
+                    if(creature.getType() != pos[i][j].getCreature().getType()) {
+                        if (i < x) {
+                            dirNum[0] += 1;
+                        } else if (i > x) {
+                            dirNum[1] += 1;
+                        }
+                        if (j < y) {
+                            dirNum[2] += 1;
+                        }
+                        else if(j > y){
+                            dirNum[3] += 1;
+                        }
+                    }
+                }
+            }
+        }
+        return dirNum;
+    }
 }

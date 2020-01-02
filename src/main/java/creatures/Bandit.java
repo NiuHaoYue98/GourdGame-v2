@@ -1,18 +1,15 @@
-package Creatures;
+package creatures;
 
-import Reply.Action;
 import javafx.scene.image.Image;
 
-import Map.*;
-
-import java.util.ArrayList;
+import map.*;
 //
-//public class Bandit extends Creatures {
+//public class Bandit extends creatures {
 //    //喽啰序号
 //    int index;
 //
 //    //初始化
-//    public Bandit(int i,String name,Map map){
+//    public Bandit(int i,String name,map map){
 //        super(name,map);
 //        this.name = "喽啰";
 //        index = i;
@@ -28,7 +25,7 @@ import java.util.ArrayList;
 public class Bandit extends Creature {
     public Bandit(Map map) {
         super(map);
-        this.nature = false;
+        this.type = false;
         this.name = "喽啰";
         this.ap = 4;
         this.dp = 2;

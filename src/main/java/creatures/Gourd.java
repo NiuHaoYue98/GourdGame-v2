@@ -1,11 +1,9 @@
-package Creatures;
+package creatures;
 
-import Map.*;
-import Reply.Action;
+import map.*;
 import javafx.scene.image.Image;
 
 import java.net.URL;
-import java.util.ArrayList;
 
 public class Gourd extends Creature{
     String[] name_list = {"红娃","橙娃","黄娃","绿娃","蓝娃","青娃","紫娃"};  //葫芦娃姓名列表
@@ -17,7 +15,7 @@ public class Gourd extends Creature{
     public Gourd(Map map, int i){
         super(map);
         this.index = i;
-        this.nature = true;
+        this.type = true;
         this.ap = i+1;
         this.dp = 8-i;
         this.url_of_image = this.getClass().getClassLoader().getResource(new String("pic/"+ (this.index +1) +".png"));

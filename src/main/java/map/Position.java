@@ -1,6 +1,6 @@
-package Map;
+package map;
 
-import Creatures.*;
+import creatures.*;
 
 public class Position{
     int pos_x;                  //位置坐标 x
@@ -25,12 +25,6 @@ public class Position{
         this.flag = false;
     }
 
-    public void getCre(Creature temp) {
-        this.creature = temp;
-        this.flag = true;
-        temp.setPosition(pos_x,pos_y);
-    }
-
     //战场移动
     public void movCre(Position temp) {
         //生物改变
@@ -50,16 +44,6 @@ public class Position{
         temp.creature.setPosition(temp.pos_x,temp.pos_y);
     }
 
-    public void killPos() {
-        if(this.creature!=null){
-            if(this.creature.getAlive() == true){
-                this.creature.killSelf();
-            }
-            this.creature = null;
-        }
-        this.flag = false;
-    }
-
     //set-get基本操作
     public void setCreature(Creature creature) {
         if (this.creature != null) {
@@ -68,6 +52,7 @@ public class Position{
         }
         this.flag = true;
         this.creature = creature;
+        creature.setPosition(this.pos_x,this.pos_y);
     }
     public Creature getCreature() {
         return this.creature;

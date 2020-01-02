@@ -1,8 +1,8 @@
-package GUI;
+package gui;
 
-import Creatures.*;
-import Map.*;
-import Reply.Record;
+import creatures.*;
+import map.*;
+import reply.Record;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 
@@ -13,31 +13,31 @@ import java.util.ArrayList;
  * @ Description：界面显示线程
  */
 
-public class myScene implements Runnable{
+public class MyScene implements Runnable{
     //基本设置
-    private final static int N = 15;        //画布大小
+    private final static int N = 15;        //地图大小
     //实体
     private Canvas mycanvas;
     private Map map;
     private World world;
     private Creature[] creatures;
     //控制信号
-    private boolean is_finished;           //战斗是否结束
-    private boolean winnerOfBattle;        //战斗结果
-    private boolean is_reloaded;           //是否回放
+    private boolean finished;           //战斗是否结束
+    private boolean winner;        //战斗结果
+    private boolean reply;              //是否回放
     //图片相关
-    private Image winner;                  //胜利图标
+    private Image winnerImage;                  //胜利图标
     //信息记录
     private Record record;                  //记录相关，引用
     private int temp_line;
     private int total_line;
 
-    public myScene(Map map, Creature[]creatures, Canvas mycanvans, World world, boolean is_reloaded, ShowMap showMap, Record record){
+    public MyScene(Map map, Creature[]creatures, Canvas mycanvans, World world, boolean reply, ShowMap showMap, Record record){
         this.mycanvas = mycanvans;
         this.world = world;
-        this.is_finished = false;
+        this.finished = false;
         this.record = record;
-        this.is_reloaded = is_reloaded;
+        this.reply = reply;
 
         this.map = map;             //引用地图
         this.creatures = creatures; //引用全部生物
@@ -46,7 +46,7 @@ public class myScene implements Runnable{
     @Override
     public void run() {
         //战斗
-        if (this.is_reloaded == false) {
+        if (this.reply == false) {
             this.battle();
         }
         //回放
@@ -61,8 +61,8 @@ public class myScene implements Runnable{
         map.setStart();
         while (!Thread.interrupted()) {
             this.check(); //进行检查判断是否是应该结束
-            System.out.println("at GUIThread.run 完成存活检验，可以继续战斗!" + this.is_finished);
-            if (!this.is_finished) {
+            System.out.println("at GUIThread.run 完成存活检验，可以继续战斗!" + this.finished);
+            if (!this.finished) {
                 try {
                     this.waitForPrint();
                     this.printMap();
@@ -76,8 +76,9 @@ public class myScene implements Runnable{
                 record.recordActions();
                 this.showResult();
                 System.out.println("游戏结束!");
-                world.closeAll();
-                record.endRecord(this.winnerOfBattle);
+                //world.closeAll();
+                //map.killAll();
+                record.endRecord(this.winner);
                 world.shutDownCreatures();
                 Thread.interrupted();
                 return;
@@ -95,18 +96,18 @@ public class myScene implements Runnable{
         }
         System.out.print("葫芦娃存活状态:"+is_Calash_Alive+"\t 敌人存活状态："+is_Monster_Alive+"\n");
         if(is_Calash_Alive == false && is_Monster_Alive == false){
-            this.is_finished = true;
-            this.winnerOfBattle = true;
+            this.finished = true;
+            this.winner = true;
             System.out.println("未分出胜负，双方同归于尽！\n");
         }
         if(is_Monster_Alive == false ) {
-            this.is_finished = true;
-            this.winnerOfBattle = true;
+            this.finished = true;
+            this.winner = true;
             System.out.println("葫芦娃获得胜利！");
         }
         if(is_Calash_Alive == false) {
-            this.is_finished = true;
-            this.winnerOfBattle = false;
+            this.finished = true;
+            this.winner = false;
             System.out.println("妖怪获得胜利");
         }
     }
@@ -140,15 +141,15 @@ public class myScene implements Runnable{
 
     //绘制战斗结果
     private void showResult(){
-        if(this.winnerOfBattle) {
-            this.winner = new Image(this.getClass().getClassLoader().getResource(new String("pic/葫芦娃胜利.png")).toString(),
+        if(this.winner) {
+            this.winnerImage = new Image(this.getClass().getClassLoader().getResource(new String("pic/葫芦娃胜利.png")).toString(),
                     400, 200, false, false);
         }
         else{
-            this.winner = new Image(this.getClass().getClassLoader().getResource(new String("pic/妖精胜利.png")).toString(),
+            this.winnerImage = new Image(this.getClass().getClassLoader().getResource(new String("pic/妖精胜利.png")).toString(),
                     400, 200, false, false);
         }
-        this.mycanvas.getGraphicsContext2D().drawImage(this.winner, 200, 200);
+        this.mycanvas.getGraphicsContext2D().drawImage(this.winnerImage, 200, 200);
     }
     //【回放】
     public void replyBattle(){
@@ -267,19 +268,17 @@ public class myScene implements Runnable{
                 temp_line++;
                 System.out.println(t[0]);
                 if(t[0].equals("calash")) {
-                    this.is_finished = true;
-                    this.winnerOfBattle = true;
+                    this.finished = true;
+                    this.winner = true;
                     System.out.println("葫芦娃获得胜利！");
                 }
                 else if(t[0].equals("monster"))
                 {
-                    this.is_finished = true;
-                    this.winnerOfBattle = false;
+                    this.finished = true;
+                    this.winner = false;
                     System.out.println("妖怪获得胜利");
                 }
             }
         }
     }
-
-
 }

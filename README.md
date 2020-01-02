@@ -49,19 +49,19 @@
 * **GUIThread.java**刷新界面的相关显示操作封装进了**ShowMap**中
 * 最主要的继承是生物类中的继承，**Creature**包中的类继承关系如下：
 ![](https://i.imgur.com/2fg5PzY.png)
-
+* `Leader`类中统一实现了爷爷和蛇精的两个功能：在战斗开始前调换己方成员的阵型、战斗中给己方成员加血。
 
 ### 多线程
 * 在世界类**World**中建立了一个线程池，**World.startBattle() **函数控制线程池启动。线程池中有17个生物线程和1个GUI界面刷新线程。
-* **Creature **和** myScene **均实现了** Runnable **接口，可以作为线程使用。生物线程和GUI刷新线程轮流工作。这里是通过在** Map **类中使用了**wait()**方法实现的。
+* **Creature **和** myScene **均实现了** Runnable **接口，可以作为线程使用。生物线程和GUI刷新线程轮流工作。这里是通过在** map **类中使用了**wait()**方法实现的。
 * 控制生物线程是否执行的是生物自身的控制符** actionFlag **，当** actionFlag **为** true**时，生物可以完整执行一次移动和攻击，执行结束后该标志自动置为** False **，执行** notifyAll() **,同时进入** WaitForAction **状态中。
-* 控制界面刷新的是** Map **地图中的** creatureActionNum **，生物每进行一次动作它会加1，当它到达17后刷新显示界面，并重置生物线程** actionFlag **控制符，** creatureActionNum **清零，而后执行** notifyAll() **,界面刷新线程进入** waitForPrint() **状态。
-* 实现中最重要的也是最容易写错的地方在于** notifyAll() **和**wait()**不是线程的方法，而是类的方法。多线程想要通过这种方法控制顺序，所有线程中都必须引用** Map **这一共享变量，** notifyAll() **和**wait()**通知的也是共享变量的改变。
+* 控制界面刷新的是** map **地图中的** creatureActionNum **，生物每进行一次动作它会加1，当它到达17后刷新显示界面，并重置生物线程** actionFlag **控制符，** creatureActionNum **清零，而后执行** notifyAll() **,界面刷新线程进入** waitForPrint() **状态。
+* 实现中最重要的也是最容易写错的地方在于** notifyAll() **和**wait()**不是线程的方法，而是类的方法。多线程想要通过这种方法控制顺序，所有线程中都必须引用** map **这一共享变量，** notifyAll() **和**wait()**通知的也是共享变量的改变。
 * 必须留一条用来吐槽，这点老师上课很是强调过，然而必须经过很长很长很长很长时间DeBug的过程才能清楚地认识这一点。
 * 核心代码如下：
 
 ```java
-public class Map {
+public class map {
     public int creatureActionNum = 0;                      //生物动作计数
 	
 
@@ -85,9 +85,9 @@ public class Map {
 
 public class Creature implements Runnable {
     public boolean actionFlag = false;      //动作进行标志:true表示可以进行
-    Map map;                            	//引用类型，引用公共变量map
+    map map;                            	//引用类型，引用公共变量map
 
-    public Creature(String name,Map map) {
+    public Creature(String name,map map) {
         this.image = ImageLoader.getImage(name);
         this.map = map;
     }
@@ -126,11 +126,11 @@ public class Creature implements Runnable {
 }
 
 public class myScene implements Runnable{
-    private Map map;						//引用类型，引用公共变量map
+    private map map;						//引用类型，引用公共变量map
     private Creature[] creatures;
 	……
 
-    public myScene(Map map, Creature[]creatures, Canvas mycanvans, World world, boolean is_reloaded, FileReader read, ShowMap showMap, Record record){
+    public myScene(map map, Creature[]creatures, Canvas mycanvans, World world, boolean reply, FileReader read, ShowMap showMap, Record record){
         ……
         this.map = map;             //引用地图
         this.creatures = creatures; //引用全部生物
@@ -139,7 +139,7 @@ public class myScene implements Runnable{
     @Override
     public void run() {
         //战斗
-        if (this.is_reloaded == false) {this.battle();}
+        if (this.reply == false) {this.battle();}
         //回放
         else {this.replyBattle();}
     }
@@ -219,11 +219,11 @@ public class World {
 * **ISP接口隔离原则**
 具有特殊技能的`Leaders`，`Scorpion`两个类均实现了`Finghting`接口。
 * **CARP合成/聚合复用**
-`Map`中的地图时`Position`的聚合，`Record`记录是`Map`和`Action`的聚合。
+`map`中的地图时`Position`的聚合，`Record`记录是`map`和`Action`的聚合。
 
 ### 游戏记录及回放
 * 记录游戏信息主要可以分为两部分：初始的阵型地图、游戏过程中的生物行为。两次刷新界面的时间间隔内的生物行为看成一组，在回放的时候同样在一次刷新间隔内完成。
-* **Reply**包内的**Record.java**和**Action.java**分别记录了信息的结构和生物动作。
+* **reply**包内的**Record.java**和**Action.java**分别记录了信息的结构和生物动作。
 * 记录的过程中，写入的文件同样也是共享变量，因此写入时也加了锁。文件名为当前时间戳。
 * 历史记录的回放没有调用生物多线程，生物行为顺序完成，然后周期结束后界面统一刷新。
 * 在实现回放的过程中，我不仅一次遇到了诸如“它应该死了，可是它还活着”和“它应该活着，可是为什么是一个墓碑在动”的问题。于是我一直翻来覆去看我的多线程有没有哪里写错了，直到最后发现，不能在`Creature.usingSkill()`函数中确定随机释放技能。不然在回放的时候，技能的使用还是随机的，随机的……不要什么都怪多线程，万一就是因为我的顺序结构没学好呢？
@@ -235,7 +235,7 @@ public class World {
 #### 集合框架
 主要使用的集合框架为** ArrayList<> **，在记录生物战斗信息时使用：
 ```java
-    ArrayList<Action> actions;                  //战斗动作序列 Reply.Record
+    ArrayList<Action> actions;                  //战斗动作序列 reply.Record
 ```
 大作业之前对于葫芦娃使用的是** List<Creature> kids = new ArrayList<Creature>(); **属于领导类中创建的成员变量，原本的设计时领导者死亡之后其他生物就都死了，好处就是打乱重新排序只需要一步：
 ```java
@@ -243,7 +243,7 @@ public class World {
 ```
 不过后来规则变成一方全部死亡游戏才会结束，葫芦娃和喽啰就不再挂在** Leader **之下了，而是在世界中单独创建。
 #### 输入输出
-使用** Writer write = new FileWriter(saveRes,false) **保存文件。全部的写文件操作被封装在了** Reply.Record **中，这部分分为创建问阿金、记录初始化地图，记录生物动作序列、关闭文件这四个部分。战斗回放中读取保存的文件。
+使用** Writer write = new FileWriter(saveRes,false) **保存文件。全部的写文件操作被封装在了** reply.Record **中，这部分分为创建问阿金、记录初始化地图，记录生物动作序列、关闭文件这四个部分。战斗回放中读取保存的文件。
 #### 注解
 `@Override`注解最常见，在子类中重写某种方法时就会用到，此外我还对两个线程类添加了` @Author`和`@Description`说明。
 #### 自动构建 Maven

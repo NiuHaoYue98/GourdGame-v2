@@ -1,4 +1,4 @@
-package Reply;
+package reply;
 
 public class Action {
     int actionType;                 //动作类型：移动-0，攻击-1，使用技能-2

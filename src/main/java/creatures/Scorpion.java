@@ -1,18 +1,14 @@
-package Creatures;
+package creatures;
 
-import Map.*;
-import Reply.Action;
+import map.*;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-public class Scorpion extends Creature implements Fighting{
+public class Scorpion extends Creature {
     public Scorpion(Map map) {
         super(map);
         this.name = "蝎子精";
-        this.nature = false;
+        this.type = false;
         this.ap = 6;
         this.dp = 2;
         this.image = new Image(getClass().getClassLoader().getResource("pic/scorpion.png").toString()
@@ -32,8 +28,8 @@ public class Scorpion extends Creature implements Fighting{
                 Creature temp = ground.getCreature(i, j);
                 if (temp != null) {
                     //攻击对方所有成员
-//                    if(temp.getAlive() && temp.retNature() != this.nature) {
-                    if (temp.getAlive() && temp.getNature() != this.nature) {
+//                    if(temp.getAlive() && temp.retNature() != this.type) {
+                    if (temp.getAlive() && temp.getType() != this.type) {
                         temp.lost_blood(2);
                         canvas.getGraphicsContext2D().drawImage(this.skillImage, j * this.size + 15, i * this.size + 15);
                     }

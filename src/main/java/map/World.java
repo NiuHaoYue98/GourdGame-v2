@@ -1,9 +1,9 @@
-package Map;
+package map;
 
-import Creatures.*;
-import GUI.myScene;
-import Reply.Action;
-import Reply.Record;
+import creatures.*;
+import gui.MyScene;
+import reply.Action;
+import reply.Record;
 import javafx.scene.canvas.Canvas;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -23,7 +23,7 @@ public class World {
     private Canvas mycanvas;
     private final static int N = 15;        //战场大小
     private ShowMap showMap;
-    private myScene myScene;
+    private MyScene myScene;
     //记录
     private Record record;
     //线程池
@@ -59,6 +59,8 @@ public class World {
             bandits[i] = new Bandit(map);
             creatures[i + 10] = bandits[i];
         }
+        grandfather.initKids(Huluwas);
+        snake.initKids(bandits);
     }
 
     //初始化放置生物进入地图
@@ -90,18 +92,11 @@ public class World {
             }
         }
     }
-    //改变阵型
-    public void makeChangeofFormaton(boolean t,int index) {
-        if(t == false)
-            form.changeFormation_mon(index,scorpion, bandits, map);
-        else
-            form.changeFormation_Hulu(index,this.Huluwas, map);
-    }
 
     //战斗开始、结束及回放
-    public void startBattle() throws Exception{
+    public void startBattle(){
         this.map.setStart();
-        myScene = new myScene(this.map,this.creatures,this.mycanvas,this,false,this.showMap,record);
+        myScene = new MyScene(this.map,this.creatures,this.mycanvas,this,false,this.showMap,record);
         for (Creature creature:creatures){
             exec.execute(creature);
         }
@@ -113,16 +108,12 @@ public class World {
         }
     }
     public void replyBattle(){
-        myScene = new myScene(this.map,this.creatures,this.mycanvas,this,true,this.showMap,record);
+        myScene = new MyScene(this.map,this.creatures,this.mycanvas,this,true,this.showMap,record);
         exec.execute(myScene);
     }
 
     public void change_war_to_start() {
         this.map.setStart();
-    }
-
-    public void closeAll() {
-        this.map.killAll();
     }
 
     //【回放】获得初始化的地图
@@ -136,6 +127,12 @@ public class World {
     }
     public void setRecord(Record record){
         this.record = record;
+    }
+    public Leader getGrandPa(){
+        return this.grandfather;
+    }
+    public Leader getSnake(){
+        return this.snake;
     }
 
 
